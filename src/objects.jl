@@ -1,17 +1,18 @@
 abstract type ZoteroObject end
 
-@with_kw mutable struct Document <: ZoteroObject
-    ID::String = ""
-end
-
 doc_color = crayon"blue"
 pdf_color = crayon"red"
 col_color = crayon"green"
 reset_color = Crayon(reset=true)
 
+@with_kw mutable struct Document <: ZoteroObject
+    ID::String = ""
+end
+
+
 @with_kw mutable struct Collection <: ZoteroObject
     ID::String = string(uuid4())
-    items::Vector{RemarkableObject} = RemarkableObject[]
+    items::Vector{ZoteroObject} = ZoteroObject[]
 end
 
 Document(dict::Dict{String, Any}) = Document(;Dict(Symbol(key)=>value for (key, value) in dict)...)
@@ -30,7 +31,7 @@ ispdf(d::Document) = endswith(d.VissibleName, ".pdf")
 AbstractTrees.printnode(io::IO, d::Document) = print(io, ispdf(d) ? pdf_color : doc_color, d.VissibleName, reset_color)
 AbstractTrees.printnode(io::IO, c::Collection) = print(io, col_color, c.VissibleName, reset_color)
 
-function create_tree(docs::AbstractVector{<:RemarkableObject})
+function create_tree(docs::AbstractVector{<:ZoteroObject})
     root = Collection(ID = "", VissibleName = "Root")
     push!(root.objects, Collection(ID = "Trash", VissibleName = "Trash"))
     update_obj!(root, docs) # Recursive loop on documents
