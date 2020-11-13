@@ -3,6 +3,12 @@ uuid = "a6782e42-190c-4b39-989d-970618284c73"
 authors = ["Théo Galy-Fajou <theo.galyfajou@gmail.com> and contributors"]
 version = "0.1.0"
 
+[deps]
+AbstractTrees = "1520ce14-60c1-5f80-bbc7-55ef81b5835c"
+Crayons = "a8cc5b0e-0ffa-5ad4-8c14-923d3ee1735f"
+HTTP = "cd3eb016-35fb-5094-929b-558a96fad6f3"
+ZipFile = "a5390f91-8eb1-5f08-bee0-b1d1ffed6cea"
+
 [compat]
 julia = "1"
 
