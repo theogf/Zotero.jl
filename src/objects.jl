@@ -156,6 +156,8 @@ Base.iterate(c::Collection, state) = iterate(c.docs, state)
 Base.iterate(c::Collection) = iterate(c.docs)
 Base.length(c::Collection) = length(c.docs)
 
+title(c::Collection) = c.name
+
 AbstractTrees.children(::Document) = ()
 AbstractTrees.children(c::Collection) = vcat(c.cols, c.docs)
 
@@ -224,6 +226,13 @@ function obj_to_dict(col::Collection)
 end
 
 
-function find_col_by_name(client::ZoteroClient, col::Collection=get_library(client))
-    
+function find_col(f, client::ZoteroClient, col::Collection=get_library(client))
+    if f(col)
+        return col
+    end
+    for c in col.cols
+        res = find_col(f, client, c)
+        isnothing(res) ? nothing : return res
+    end
+    return nothing
 end

@@ -14,3 +14,5 @@ Zotero.dict_to_doc(dict)
 
 l = Zotero.get_library(c)
 print_tree(l)
+
+Zotero.find_col(x->Zotero.title(x)=="Optimization", c, l)
