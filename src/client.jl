@@ -33,4 +33,5 @@ end
 function request_json(client::ZoteroClient, verb::String, url::String, headers::Dict=Dict(), body::String=""; kwargs...)
     headers = merge(headers, Dict("Content-Type" => "application/json"))
     body = HTTP.request(client, verb, url, headers, body; kwargs...)
+    return JSON.parse(String(body))
 end
