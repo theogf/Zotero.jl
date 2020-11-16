@@ -1,5 +1,5 @@
 abstract type ZoteroObject end
-
+abstract type Document <: ZoteroObject end
 doc_color = crayon"blue"
 pdf_color = crayon"red"
 col_color = crayon"green"
@@ -22,31 +22,103 @@ function Library(dict::Dict{String, Any})
     Library(;Dict(Symbol(key)=>value for (key, value) in dict)...)
 end
 
-@with_kw mutable struct Document <: ZoteroObject
+@with_kw mutable struct ParentDoc <: Document
     key::String = rand_key()
     library::Library
     # Meta Info
-    creatorSummary::String = ""
-    parsedDate::String = ""
-    numChildren::Int = 0
+    meta::Dict{String, Any} = Dict{String, Any}()
     # Links
-    self::Dict{String, Any} = Dict{String, Any}("href" => "", "type" => "application/json")
-    alternate::Dict{String, Any} = Dict{String, Any}("href" => "", "type" => "text/html")
-    attachment::Dict{String, Any} = Dict{String, Any}("href" => "", "type" => "application/json")
-    enclosure::Dict{String, Any} = Dict{String, Any}()
-    up::Dict{String, Any} = Dict{String, Any}("href" => "", "type" => "application/json")
+    links::Dict{String, Any} = Dict{String, Any}()
     # Data
     data::Dict{String, Any} = Dict{String, Any}()
     version::Int = 0
+    attachments::Vector{Document} = Document[]
 end
 
-function Document(dict::Dict{String, Any})
-    merged_dicts = merge(
-        Dict("key" => dict["key"], "data" => dict["data"], "library" => Library(dict["library"])),
-        dict["meta"],
-        dict["links"],
-        )
-    Document(;Dict(Symbol(key)=>value for (key, value) in merged_dicts)...)
+@with_kw mutable struct Attachment <: Document
+    key::String = rand_key()
+    library::Library
+    # Meta Info
+    meta::Dict{String, Any} = Dict{String, Any}()
+    # Links
+    links::Dict{String, Any} = Dict{String, Any}()
+    # Data
+    data::Dict{String, Any} = Dict{String, Any}()
+    version::Int = 0
+    attachments::Vector{Document} = Document[]
+end
+
+@with_kw mutable struct PDF <: Document
+    key::String = rand_key()
+    library::Library
+    # Meta Info
+    meta::Dict{String, Any} = Dict{String, Any}()
+    # Links
+    links::Dict{String, Any} = Dict{String, Any}()
+    # Data
+    data::Dict{String, Any} = Dict{String, Any}()
+    version::Int = 0
+    attachments::Vector{Document} = Document[]
+end
+
+@with_kw mutable struct URL <: Document
+    key::String = rand_key()
+    library::Library
+    # Meta Info
+    meta::Dict{String, Any} = Dict{String, Any}()
+    # Links
+    links::Dict{String, Any} = Dict{String, Any}()
+    # Data
+    data::Dict{String, Any} = Dict{String, Any}()
+    version::Int = 0
+    attachments::Vector{Document} = Document[]
+end
+
+@with_kw mutable struct Presentation <: Document
+    key::String = rand_key()
+    library::Library
+    # Meta Info
+    meta::Dict{String, Any} = Dict{String, Any}()
+    # Links
+    links::Dict{String, Any} = Dict{String, Any}()
+    # Data
+    data::Dict{String, Any} = Dict{String, Any}()
+    version::Int = 0
+    attachments::Vector{Document} = Document[]
+end
+
+@with_kw mutable struct Note <: Document
+    key::String = rand_key()
+    library::Library
+    # Meta Info
+    meta::Dict{String, Any} = Dict{String, Any}()
+    # Links
+    links::Dict{String, Any} = Dict{String, Any}()
+    # Data
+    data::Dict{String, Any} = Dict{String, Any}()
+    version::Int = 0
+    attachments::Vector{Document} = Document[]
+end
+
+function dict_to_doc(dict::Dict{String, Any})
+    dict["library"] = Library(dict["library"])
+    dict = Dict(Symbol(key)=>value for (key, value) in dict) # Convert in symbol convention
+    if !haskey(dict[:data], "parentItem")
+        return ParentDoc(;dict...)
+    end
+    if dict[:data]["itemType"] == "attachment"
+        if dict[:data]["contentType"] == "application/pdf"
+            return PDF(;dict...)
+        elseif dict[:data]["contentType"] == "text/html"
+            return URL(;dict...)
+        else
+            return Attachment(;dict...)
+        end
+    elseif dict[:data]["itemType"] == "note"
+        return Note(;dict...)
+    # elseif dict[:data]["ItemType"] == "presentation"
+    #     return Presentation(;dict...)
+    end
 end
 @with_kw mutable struct Collection <: ZoteroObject
     key::String = rand_key()
@@ -79,29 +151,29 @@ function Collection(dict::Dict{String, Any})
     Collection(;Dict(Symbol(key)=>value for (key, value) in merged_dicts)...)
 end
 
-Base.getindex(c::Collection, i::Int) = getindex(c.items, i)
-Base.iterate(c::Collection, state) = iterate(c.items, state)
-Base.iterate(c::Collection) = iterate(c.items)
-Base.length(c::Collection) = length(c.items)
+Base.getindex(c::Collection, i::Int) = getindex(c.docs, i)
+Base.iterate(c::Collection, state) = iterate(c.docs, state)
+Base.iterate(c::Collection) = iterate(c.docs)
+Base.length(c::Collection) = length(c.docs)
 
 AbstractTrees.children(::Document) = ()
 AbstractTrees.children(c::Collection) = vcat(c.cols, c.docs)
 
 ispdf(d::Document) = endswith(d.creatorSummary, ".pdf")
 
-AbstractTrees.printnode(io::IO, d::Document) = print(io, ispdf(d) ? pdf_color : doc_color, d.creatorSummary, reset_color)
+AbstractTrees.printnode(io::IO, d::ParentDoc) = print(io, doc_color, d.data["title"], reset_color)
 AbstractTrees.printnode(io::IO, c::Collection) = print(io, col_color, c.name, reset_color)
 
 
 function get_library(client::ZoteroClient; kwargs...)
     root = Collection(name="root", key="", library=Library())
     dicts = request_json(client, "GET", "collections"; kwargs...)
-    for dict in dicts
+    @showprogress for dict in dicts
         col = Collection(dict)
         if col.parentCollection == ""
             update_col!(client, col)
+            push!(root.cols, col)
         end
-        push!(root.cols, col)
     end
     root.numCollections = length(root.cols)
     return root
@@ -119,6 +191,25 @@ function update_col!(client::ZoteroClient, col::Collection)
         push!(col.cols, new_col)
     end
     return col
+end
+
+function organize(docs::AbstractVector)
+    topdocs = Document[]
+    for doc in docs
+        if doc isa ParentDoc
+            organize!(doc, docs)
+            push!(topdocs, doc)
+        end
+    end
+    return topdocs
+end
+
+function organize!(topdoc::ParentDoc, docs::AbstractVector)
+    for doc in docs
+        if haskey(doc.data, "parentItem") && doc.data["parentItem"] == topdoc.key
+            push!(topdoc.attachments, doc)
+        end
+    end
 end
 
 function obj_to_dict(doc::Document)

@@ -10,6 +10,7 @@ end
 c = ZoteroClient("test")
 dicts = Zotero.request_json(c, "GET", "collections/LKXGUR69/items")
 dict = dicts[1]
-Zotero.Document(dict)
+Zotero.dict_to_doc(dict)
 
 l = Zotero.get_library(c)
+print_tree(l)

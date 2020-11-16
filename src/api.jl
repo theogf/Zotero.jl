@@ -7,17 +7,19 @@ function Base.download(client::ZoteroClient, col::Collection; dl=false)
 end
 
 function download_item(client::ZoteroClient, key::String, dl=false, kwargs...)
-    download(client, Document(; key=key); dl=dl, kwargs...)
+    download(client, ParentDoc(; key=key); dl=dl, kwargs...)
 end
 
 function download_collection(client::ZoteroClient, key::String, dl=false, kwargs...)
-    download(client, Document(; key=key); dl=dl, kwargs...)
+    download(client, ParentDoc(;key=key); dl=dl, kwargs...)
 end
 
 function collect_items!(client::ZoteroClient, col::Collection; refresh=false, kwargs...)
     if isempty(col.docs) || refresh
         dicts = request_json(client, "GET", joinpath("collections", col.key, "items"); kwargs)
-        col.docs = Document.(dicts)
+        docs = dict_to_doc.(dicts)
+        org_docs = organize(docs)
+        col.docs = org_docs
     end
     return col.docs
 end

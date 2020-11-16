@@ -6,6 +6,7 @@ using AbstractTrees: AbstractTrees, print_tree
 using Parameters
 using JSON
 using Crayons
+using ProgressMeter
 using ZipFile
 
 export ZoteroClient
