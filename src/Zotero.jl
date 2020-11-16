@@ -1,12 +1,16 @@
 module Zotero
 
 using HTTP
-using AbstractTrees
+import HTTP: request
+using AbstractTrees: AbstractTrees, print_tree
 using Parameters
+using JSON
 using Crayons
 using ZipFile
 
 export ZoteroClient
+export print_tree
+
 
 include("client.jl")
 include("objects.jl")
