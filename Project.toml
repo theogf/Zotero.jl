@@ -18,6 +18,7 @@ Crayons = "4.0"
 HTTP = "0.8, 0.9"
 JSON = "0.21"
 Parameters = "0.12"
+ProgressMeter = "1.4"
 ZipFile = "0.9"
 julia = "1"
 
