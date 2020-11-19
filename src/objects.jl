@@ -157,6 +157,7 @@ Base.iterate(c::Collection) = iterate(c.docs)
 Base.length(c::Collection) = length(c.docs)
 
 title(c::Collection) = c.name
+title(d::ParentDoc) = d.data["title"]
 
 AbstractTrees.children(::Document) = ()
 AbstractTrees.children(c::Collection) = vcat(c.cols, c.docs)
