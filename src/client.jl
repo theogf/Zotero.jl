@@ -12,8 +12,10 @@ end
 
 function ZoteroClient(path_to_ids::String=pwd())
     # TODO gives an information message for errors
-    path_to_ids = isdir(path_to_ids) ? joinpath(path_to_ids, ".token") : path_to_ids
-    return ZoteroClient(readlines(path_to_ids)...)
+    haskey(ENV, "ZOTERO_API") && haskey(ENV, "ZOTERO_USER") || error("API token
+    and User ID are missing from the `ENV` variable. You need to load them from a
+    `.env` file (using `DotEnv` for example) or set them manually.")
+    return ZoteroClient(ENV["ZOTERO_TOKEN"], ENV["ZOTERO_USER"], get(ENV, "IS_ZOTERO_USER", true))
 end
 
 function base_url(client::ZoteroClient)

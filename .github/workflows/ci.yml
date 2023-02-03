@@ -35,6 +35,9 @@ jobs:
             ${{ runner.os }}-
       - uses: julia-actions/julia-buildpkg@v1
       - uses: julia-actions/julia-runtest@v1
+        env:
+          ZOTERO_API: ${{ secrets.ZOTERO_API_KEY }}
+          ZOTERO_USER: ${{ secrets.ZOTERO_USER }}
       - uses: julia-actions/julia-uploadcoveralls@v1
         env:
           COVERALLS_TOKEN: ${{ secrets.COVERALLS_TOKEN }}
