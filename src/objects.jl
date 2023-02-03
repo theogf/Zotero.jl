@@ -1,13 +1,17 @@
+"Abstract type representing all kind objects being stored in Zotero"
 abstract type ZoteroObject end
+"Document represents the concrete elements of the collections"
 abstract type Document <: ZoteroObject end
-doc_color = crayon"blue"
-pdf_color = crayon"red"
-col_color = crayon"green"
-reset_color = Crayon(reset=true)
+# We use colors for distinguishing the tree structure more easily
+const doc_color = crayon"blue"
+const pdf_color = crayon"red"
+const col_color = crayon"green"
+const reset_color = Crayon(reset=true)
 
-rand_key() = join(rand(vcat('A':'Z', '0':'9'), 8))
+# Generate a random key for newly created documents
+rand_key(rng::AbstractRNG = default_rng()) = join(rand(rng, vcat('A':'Z', '0':'9'), 8))
 
-@with_kw mutable struct Library
+ @kwdef struct Library
     name::String = ""
     # Links
     alternate::Dict{String, Any} = Dict{String, Any}("href" => "", "type" => "text/html")
@@ -22,7 +26,7 @@ function Library(dict::Dict{String, Any})
     Library(;Dict(Symbol(key)=>value for (key, value) in dict)...)
 end
 
-@with_kw mutable struct ParentDoc <: Document
+@kwdef struct ParentDoc <: Document
     key::String = rand_key()
     library::Library
     # Meta Info
@@ -35,7 +39,7 @@ end
     attachments::Vector{Document} = Document[]
 end
 
-@with_kw mutable struct Attachment <: Document
+@kwdef struct Attachment <: Document
     key::String = rand_key()
     library::Library
     # Meta Info
@@ -48,7 +52,7 @@ end
     attachments::Vector{Document} = Document[]
 end
 
-@with_kw mutable struct PDF <: Document
+@kwdef struct PDF <: Document
     key::String = rand_key()
     library::Library
     # Meta Info
@@ -61,7 +65,7 @@ end
     attachments::Vector{Document} = Document[]
 end
 
-@with_kw mutable struct URL <: Document
+@kwdef struct URL <: Document
     key::String = rand_key()
     library::Library
     # Meta Info
@@ -74,7 +78,7 @@ end
     attachments::Vector{Document} = Document[]
 end
 
-@with_kw mutable struct Presentation <: Document
+@kwdef struct Presentation <: Document
     key::String = rand_key()
     library::Library
     # Meta Info
@@ -87,7 +91,7 @@ end
     attachments::Vector{Document} = Document[]
 end
 
-@with_kw mutable struct Note <: Document
+@kwdef struct Note <: Document
     key::String = rand_key()
     library::Library
     # Meta Info
@@ -120,7 +124,7 @@ function dict_to_doc(dict::Dict{String, Any})
     #     return Presentation(;dict...)
     end
 end
-@with_kw mutable struct Collection <: ZoteroObject
+@kwdef struct Collection <: ZoteroObject
     key::String = rand_key()
     library::Library
     # Meta Info
@@ -182,7 +186,6 @@ function get_library(client::ZoteroClient; kwargs...)
     return root
 end
 
-
 function update_col!(client::ZoteroClient, col::Collection)
     # First add all items
     collect_items!(client, col, refresh=true)
@@ -222,8 +225,7 @@ end
 
 function obj_to_dict(col::Collection)
     dict = type2dict(col)
-    delete!(dict, :objects)
-    return Dict(string(key)=>value for (key, value) in dict)
+    return Dict(string(key)=>value for (key, value) in dict if key != :objects)
 end
 
 

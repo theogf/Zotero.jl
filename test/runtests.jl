@@ -3,7 +3,11 @@ using Test
 using JSON3
 using DotEnv
 
+DotEnv.config(joinpath(@__DIR__, ".env"))
+
 @testset "Zotero.jl" begin
+    include("objects.jl")
+    include("client.jl")
     # Write your tests here.
 end
 
