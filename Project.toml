@@ -15,10 +15,10 @@ ZipFile = "a5390f91-8eb1-5f08-bee0-b1d1ffed6cea"
 [compat]
 AbstractTrees = "0.4"
 Crayons = "4"
+HTTP = "1"
 JSON3 = "1"
 Parameters = "0.12"
 ProgressMeter = "1"
-HTTP = "1"
 ZipFile = "0.10"
 
 [extras]

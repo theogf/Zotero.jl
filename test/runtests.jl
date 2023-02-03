@@ -1,6 +1,7 @@
 using Zotero
 using Test
-using JSON
+using JSON3
+using DotEnv
 
 @testset "Zotero.jl" begin
     # Write your tests here.
