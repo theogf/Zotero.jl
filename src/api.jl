@@ -17,7 +17,7 @@ end
 function collect_items!(client::ZoteroClient, col::Collection; refresh::Bool=false, kwargs...)
     if isempty(col.docs) || refresh
         dicts = request_json(client, "GET", joinpath("collections", col.key, "items"); kwargs)
-        docs = dict_to_doc.(dicts)
+        docs = dict_to_doc.(Dict.(dicts))
         org_docs = organize(docs)
         col.docs = org_docs
     end

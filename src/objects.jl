@@ -14,15 +14,15 @@ rand_key(rng::AbstractRNG = default_rng()) = join(rand(rng, vcat('A':'Z', '0':'9
  @kwdef struct Library
     name::String = ""
     # Links
-    alternate::Dict{String, Any} = Dict{String, Any}("href" => "", "type" => "text/html")
+    alternate::Dict{Symbol, Any} = Dict{Symbol, Any}(:href => "", :type => "text/html")
     id::Int = 0
     type::String = ""
 end
 
 function Library(dict::Dict{Symbol, Any})
-    alternate = dict[:links][:alternate]
+    alternate = dict[:links]["alternate"]
     delete!(dict, :links)
-    dict[:alternate] = alternate
+    dict[:alternate] = Dict(alternate)
     Library(;dict...)
 end
 
@@ -30,11 +30,11 @@ end
     key::String = rand_key()
     library::Library
     # Meta Info
-    meta::Dict{String, Any} = Dict{String, Any}()
+    meta::Dict{Symbol, Any} = Dict{Symbol, Any}()
     # Links
-    links::Dict{String, Any} = Dict{String, Any}()
+    links::Dict{Symbol, Any} = Dict{Symbol, Any}()
     # Data
-    data::Dict{String, Any} = Dict{String, Any}()
+    data::Dict{Symbol, Any} = Dict{Symbol, Any}()
     version::Int = 0
     attachments::Vector{Document} = Document[]
 end
@@ -43,11 +43,11 @@ end
     key::String = rand_key()
     library::Library
     # Meta Info
-    meta::Dict{String, Any} = Dict{String, Any}()
+    meta::Dict{Symbol, Any} = Dict{Symbol, Any}()
     # Links
-    links::Dict{String, Any} = Dict{String, Any}()
+    links::Dict{Symbol, Any} = Dict{Symbol, Any}()
     # Data
-    data::Dict{String, Any} = Dict{String, Any}()
+    data::Dict{Symbol, Any} = Dict{Symbol, Any}()
     version::Int = 0
     attachments::Vector{Document} = Document[]
 end
@@ -56,11 +56,11 @@ end
     key::String = rand_key()
     library::Library
     # Meta Info
-    meta::Dict{String, Any} = Dict{String, Any}()
+    meta::Dict{Symbol, Any} = Dict{Symbol, Any}()
     # Links
-    links::Dict{String, Any} = Dict{String, Any}()
+    links::Dict{Symbol, Any} = Dict{Symbol, Any}()
     # Data
-    data::Dict{String, Any} = Dict{String, Any}()
+    data::Dict{Symbol, Any} = Dict{Symbol, Any}()
     version::Int = 0
     attachments::Vector{Document} = Document[]
 end
@@ -69,11 +69,11 @@ end
     key::String = rand_key()
     library::Library
     # Meta Info
-    meta::Dict{String, Any} = Dict{String, Any}()
+    meta::Dict{Symbol, Any} = Dict{Symbol, Any}()
     # Links
-    links::Dict{String, Any} = Dict{String, Any}()
+    links::Dict{Symbol, Any} = Dict{Symbol, Any}()
     # Data
-    data::Dict{String, Any} = Dict{String, Any}()
+    data::Dict{Symbol, Any} = Dict{Symbol, Any}()
     version::Int = 0
     attachments::Vector{Document} = Document[]
 end
@@ -82,11 +82,11 @@ end
     key::String = rand_key()
     library::Library
     # Meta Info
-    meta::Dict{String, Any} = Dict{String, Any}()
+    meta::Dict{Symbol, Any} = Dict{Symbol, Any}()
     # Links
-    links::Dict{String, Any} = Dict{String, Any}()
+    links::Dict{Symbol, Any} = Dict{Symbol, Any}()
     # Data
-    data::Dict{String, Any} = Dict{String, Any}()
+    data::Dict{Symbol, Any} = Dict{Symbol, Any}()
     version::Int = 0
     attachments::Vector{Document} = Document[]
 end
@@ -95,18 +95,17 @@ end
     key::String = rand_key()
     library::Library
     # Meta Info
-    meta::Dict{String, Any} = Dict{String, Any}()
+    meta::Dict{Symbol, Any} = Dict{Symbol, Any}()
     # Links
-    links::Dict{String, Any} = Dict{String, Any}()
+    links::Dict{Symbol, Any} = Dict{Symbol, Any}()
     # Data
-    data::Dict{String, Any} = Dict{String, Any}()
+    data::Dict{Symbol, Any} = Dict{Symbol, Any}()
     version::Int = 0
     attachments::Vector{Document} = Document[]
 end
 
-function dict_to_doc(dict::Dict{String, Any})
-    dict["library"] = Library(dict["library"])
-    dict = Dict(Symbol(key)=>value for (key, value) in dict) # Convert in symbol convention
+function dict_to_doc(dict::Dict{Symbol, Any})
+    dict[:library] = Library(Dict(dict[:library]))
     if !haskey(dict[:data], "parentItem")
         return ParentDoc(;dict...)
     end
@@ -131,13 +130,13 @@ end
     numCollections::Int = 0
     numItems::Int = 0
     # Links
-    self::Dict{String, Any} = Dict{String, Any}("href" => "", "type" => "application/json")
-    alternate::Dict{String, Any} = Dict{String, Any}("href" => "", "type" => "text/html")
-    up::Dict{String, Any} = Dict{String, Any}("href" => "", "type" => "application/json")
+    self::Dict{Symbol, Any} = Dict{Symbol, Any}(:href => "", :type => "application/json")
+    alternate::Dict{Symbol, Any} = Dict{Symbol, Any}(:href => "", :type => "text/html")
+    up::Dict{Symbol, Any} = Dict{Symbol, Any}(:href => "", :type => "application/json")
     # Data
     name::String = ""
     parentCollection::String = ""
-    relations::Dict = Dict{String, Any}()
+    relations::Dict = Dict{Symbol, Any}()
     version::Int = 0
     # Contained objects
     cols::Vector{Collection} = Collection[]
@@ -150,7 +149,7 @@ function Collection(dict::Dict{Symbol, Any})
         dict[:data][:parentCollection] = ""
     end
     merged_dicts = merge(
-        Dict(:key => dict[:key], :library => Library(Dict(dict[:library]))),
+    Dict(:key => dict[:key], :library => Library(Dict(dict[:library]))),
         dict[:meta],
         dict[:links],
         dict[:data],
