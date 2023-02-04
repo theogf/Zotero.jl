@@ -163,14 +163,14 @@ Base.iterate(c::Collection) = iterate(c.docs)
 Base.length(c::Collection) = length(c.docs)
 
 title(c::Collection) = c.name
-title(d::ParentDoc) = d.data["title"]
+title(d::ParentDoc) = d.data[:title]
 
 AbstractTrees.children(::Document) = ()
 AbstractTrees.children(c::Collection) = vcat(c.cols, c.docs)
 
 ispdf(d::Document) = endswith(d.creatorSummary, ".pdf")
 
-AbstractTrees.printnode(io::IO, d::ParentDoc) = print(io, doc_color, d.data["title"], reset_color)
+AbstractTrees.printnode(io::IO, d::ParentDoc) = print(io, doc_color, title(d), reset_color)
 AbstractTrees.printnode(io::IO, c::Collection) = print(io, col_color, c.name, reset_color)
 
 Base.show(io::IO, ::MIME"text/plain", c::Collection) = print_tree(io, c)
@@ -215,7 +215,7 @@ end
 
 function organize!(topdoc::ParentDoc, docs::AbstractVector)
     for doc in docs
-        if haskey(doc.data, "parentItem") && doc.data["parentItem"] == topdoc.key
+        if haskey(doc.data, :parentItem) && doc.data[:parentItem] == topdoc.key
             push!(topdoc.attachments, doc)
         end
     end
