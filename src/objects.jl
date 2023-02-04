@@ -124,7 +124,7 @@ function dict_to_doc(dict::Dict{String, Any})
     #     return Presentation(;dict...)
     end
 end
-@kwdef struct Collection <: ZoteroObject
+@kwdef mutable struct Collection <: ZoteroObject
     key::String = rand_key()
     library::Library
     # Meta Info
@@ -144,15 +144,17 @@ end
     docs::Vector{Document} = Document[]
 end
 
-function Collection(dict::Dict{String, Any})
-    dict["data"]["parentCollection"] isa Bool ? dict["data"]["parentCollection"] = "" : nothing
+function Collection(dict::Dict{Symbol, Any})
+    if dict[:data][:parentCollection] isa Bool
+        dict[:data][:parentCollection] = ""
+    end
     merged_dicts = merge(
-        Dict("key" => dict["key"], "library" => Library(dict["library"])),
-        dict["meta"],
-        dict["links"],
-        dict["data"],
+        Dict(:key => dict[:key], :library => Library(dict[:library])),
+        dict[:meta],
+        dict[:links],
+        dict[:data],
         )
-    Collection(;Dict(Symbol(key)=>value for (key, value) in merged_dicts)...)
+    Collection(;merged_dicts...)
 end
 
 Base.getindex(c::Collection, i::Int) = getindex(c.docs, i)
@@ -171,12 +173,14 @@ ispdf(d::Document) = endswith(d.creatorSummary, ".pdf")
 AbstractTrees.printnode(io::IO, d::ParentDoc) = print(io, doc_color, d.data["title"], reset_color)
 AbstractTrees.printnode(io::IO, c::Collection) = print(io, col_color, c.name, reset_color)
 
+Base.show(io::IO, ::MIME"text/plain", c::Collection) = print_tree(io, c)
 
 function get_library(client::ZoteroClient; kwargs...)
     root = Collection(name="root", key="", library=Library())
     dicts = request_json(client, "GET", "collections"; kwargs...)
     @showprogress for dict in dicts
-        col = Collection(dict)
+        Main.@infiltrate
+        col = Collection(Dict(dict))
         if col.parentCollection == ""
             update_col!(client, col)
             push!(root.cols, col)

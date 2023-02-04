@@ -13,6 +13,7 @@ using ZipFile
 import HTTP: request
 
 export ZoteroClient
+export get_library
 export print_tree
 
 

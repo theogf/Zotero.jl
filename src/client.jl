@@ -26,7 +26,7 @@ end
 function HTTP.request(client::ZoteroClient, verb::String, url::String, headers::Dict=Dict(), body::String=""; kwargs...)
     merge!(headers, Dict(
                     "Zotero-API-Version" => 3,
-                    "Zotero-API-Key" => client.APIKey, 
+                    "Zotero-API-Key" => client.token, 
                     )
                 )
     response = HTTP.request(verb, joinpath(base_url(client), url), headers, body; kwargs...)
@@ -36,5 +36,5 @@ end
 function request_json(client::ZoteroClient, verb::String, url::String, headers::Dict=Dict(), body::String=""; kwargs...)
     headers = merge(headers, Dict("Content-Type" => "application/json"))
     body = HTTP.request(client, verb, url, headers, body; kwargs...)
-    return JSON3.parse(String(body))
+    return JSON3.read(String(body))
 end
