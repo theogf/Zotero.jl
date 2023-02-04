@@ -19,11 +19,11 @@ rand_key(rng::AbstractRNG = default_rng()) = join(rand(rng, vcat('A':'Z', '0':'9
     type::String = ""
 end
 
-function Library(dict::Dict{String, Any})
-    alternate = dict["links"]["alternate"]
-    delete!(dict, "links")
-    dict["alternate"] = alternate
-    Library(;Dict(Symbol(key)=>value for (key, value) in dict)...)
+function Library(dict::Dict{Symbol, Any})
+    alternate = dict[:links][:alternate]
+    delete!(dict, :links)
+    dict[:alternate] = alternate
+    Library(;dict...)
 end
 
 @kwdef struct ParentDoc <: Document
@@ -145,11 +145,12 @@ end
 end
 
 function Collection(dict::Dict{Symbol, Any})
+    dict[:data] = Dict(dict[:data])
     if dict[:data][:parentCollection] isa Bool
         dict[:data][:parentCollection] = ""
     end
     merged_dicts = merge(
-        Dict(:key => dict[:key], :library => Library(dict[:library])),
+        Dict(:key => dict[:key], :library => Library(Dict(dict[:library]))),
         dict[:meta],
         dict[:links],
         dict[:data],
@@ -179,7 +180,6 @@ function get_library(client::ZoteroClient; kwargs...)
     root = Collection(name="root", key="", library=Library())
     dicts = request_json(client, "GET", "collections"; kwargs...)
     @showprogress for dict in dicts
-        Main.@infiltrate
         col = Collection(Dict(dict))
         if col.parentCollection == ""
             update_col!(client, col)
