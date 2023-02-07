@@ -1,7 +1,7 @@
 name = "Zotero"
 uuid = "a6782e42-190c-4b39-989d-970618284c73"
 authors = ["Théo Galy-Fajou <theo.galyfajou@gmail.com> and contributors"]
-version = "0.1.0"
+version = "0.1.1"
 
 [deps]
 AbstractTrees = "1520ce14-60c1-5f80-bbc7-55ef81b5835c"
@@ -17,8 +17,10 @@ ZipFile = "a5390f91-8eb1-5f08-bee0-b1d1ffed6cea"
 [compat]
 AbstractTrees = "0.4"
 Crayons = "4"
+DotEnv = "0.3"
 HTTP = "1"
 JSON3 = "1"
+Parameters = "0.12"
 ProgressMeter = "1"
 ZipFile = "0.10"
 
