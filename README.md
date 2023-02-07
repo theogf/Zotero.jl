@@ -5,3 +5,28 @@
 [![Build Status](https://github.com/theogf/Zotero.jl/workflows/CI/badge.svg)](https://github.com/theogf/Zotero.jl/actions)
 [![Coverage](https://coveralls.io/repos/github/theogf/Zotero.jl/badge.svg?branch=master)](https://coveralls.io/github/theogf/Zotero.jl?branch=master)
 [![Code Style: Blue](https://img.shields.io/badge/code%20style-blue-4495d1.svg)](https://github.com/invenia/BlueStyle)
+
+## Installation
+
+```julia
+] add Zotero
+```
+
+You first need to obtain an API token from Zotero.
+Go to your [Zotero account settings](https://www.zotero.org/settings/keys) and create a new API token.
+You should also get your user ID from the same page.
+Store both of these values in a `.env` file in the root of your project with 
+the following format:
+
+```toml
+ZOTERO_API_TOKEN="[YOUR API TOKEN]"
+ZOTERO_USER_ID="[YOUR USER ID]"
+```
+
+## Usage
+
+```julia
+using Zotero
+client = ZoteroClient() # This will go fetch your tokens and build a client
+library = get_library(client) # This will fetch your library as a collection of collections.
+```
