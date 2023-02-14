@@ -6,6 +6,8 @@ using DotEnv
 DotEnv.config(joinpath(@__DIR__, ".env"))
 include("api.jl")
 
+@show ENV
+
 @testset "Zotero.jl" begin
     include("objects.jl")
     include("client.jl")
