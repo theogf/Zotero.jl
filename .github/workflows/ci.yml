@@ -36,8 +36,8 @@ jobs:
       - uses: julia-actions/julia-buildpkg@v1
       - uses: julia-actions/julia-runtest@v1
         env:
-          ZOTERO_API_TOKEN: ${{ secrets.ZOTERO_API_KEY }}
-          ZOTERO_USER_ID: ${{ secrets.ZOTERO_USER }}
+          ZOTERO_API_TOKEN: ${{ secrets.ZOTERO_API_TOKEN }}
+          ZOTERO_USER_ID: ${{ secrets.ZOTERO_USER_ID }}
       - uses: julia-actions/julia-processcoverage@v1
       - uses: codecov/codecov-action@v2
         with:

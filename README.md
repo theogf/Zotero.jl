@@ -9,13 +9,14 @@
 ## Installation
 
 ```julia
-] add Zotero
+using Pkg
+Pkg.add("Zotero")
 ```
 
 You first need to obtain an API token from Zotero.
 Go to your [Zotero account settings](https://www.zotero.org/settings/keys) and create a new API token.
 You should also get your user ID from the same page.
-Store both of these values in a `.env` file in the root of your project with 
+Store both of these values in a `.env` file in the root of your project with
 the following format:
 
 ```toml
